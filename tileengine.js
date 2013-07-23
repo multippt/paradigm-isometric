@@ -36,6 +36,14 @@ function TileSet() {
 TileSet.prototype.load = function(path, firstgid, tileWidth, tileHeight, imageWidth, imageHeight, tileOffsetX, tileOffsetY) {
 	this.texture = new Image();
 	this.texture.src = path;
+	this.imageCallback = function(tileSet) {
+		return function() {
+			console.log(tileSet.texture.src + " loaded");
+			tileSet.loaded = true;
+		}
+	}
+	this.texture.onload = this.imageCallback(this);
+	this.loaded = false;
 	this.src = path;
 	this.offset = firstgid;
 	this.tileWidth = tileWidth;
@@ -53,6 +61,10 @@ TileSet.prototype.drawMarker = function(x, y) {
 	ctx.fillRect(x, y, 5, 5);
 }
 TileSet.prototype.drawTile = function(index, x, y) {
+	if (!this.loaded) {
+		return;
+	}
+
 	var x1 = (index % this.cols) * this.tileWidth;
 	var y1 = ((index - (index % this.cols)) / this.cols) * this.tileHeight;
 	// Tile drawn bottom centered
@@ -83,6 +95,13 @@ function TileMap() {
 	this.mouseX = 0;
 	this.mouseY = 0;
 	this.pick = new Image();
+	this.pickLoaded = false;
+	this.pickloadedcallback = function(map) {
+		return function() {
+			map.pickLoaded = true;
+		}
+	}
+	this.pick.onload = this.pickloadedcallback(this);
 	this.pick.src = "hilight.png";
 	this.collisionMap;
 	this.finder;
@@ -429,8 +448,10 @@ TileMap.prototype.draw = function() {
 	this.performStep();
 	ctx.fillStyle="black";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	//console.log(ctx);
 	this.drawLayers();
 	this.drawPick();
+	
 	//this.drawPath(this.path);
 }
 // Draw player
@@ -449,6 +470,9 @@ TileMap.prototype.drawPlayer = function() {
 }
 // Draw pick
 TileMap.prototype.drawPick = function() {
+	if (!this.pickLoaded) {
+		return;
+	}
 	var x = this.mouseX - this.globalX;
 	var y = this.mouseY - this.globalY;
 	var tile = this.worldToTile(x, y);
@@ -592,6 +616,9 @@ TileMap.prototype.drawPath = function(path) {
 	}
 }
 TileMap.prototype.drawPathPoint = function(s, t) {
+	if (!this.pickLoaded) {
+		return;
+	}
 	var coord = this.tileToWorld(s, t);
 	ctx.globalAlpha = 0.5;
 	ctx.drawImage(this.pick, coord.x, coord.y);
@@ -632,12 +659,23 @@ function Sprite() {
 	this.drawOffsetY = 0;
 	this.state = "";
 	this.texture = new Image();
+	this.texturecallback = function(sprite) {
+		return function() {
+			sprite.loaded = true;
+		}
+	}
+	this.texture.onload = this.texturecallback(this);
+	this.loaded = false;
+	
 	this.animations = new Array();
 	this.lastState = "";
 	this.lastTime = 0; // records last timing when the state was changed
 	this.pause = false;
 }
 Sprite.prototype.draw = function() {
+	if (!this.loaded) {
+		return;
+	}
 	if (this.lastTime == 0 || this.lastState != this.state) {
 		this.lastTime = Date.now();
 		this.lastState = this.state;
