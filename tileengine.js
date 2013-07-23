@@ -588,7 +588,8 @@ TileMap.prototype.setCollisionMap = function(index) {
 	var layer = this.layers[index];
 	var grid = new PF.Grid(layer.grid.length, layer.grid[0].length);
 	this.collisionMap = grid;
-	if (this.collisionMap == null) {
+	if (typeof(this.collisionMap) == "undefined") {
+		this.collisionMap = null;
 		console.log("Cannot generate collision map");
 		return;
 	}
