@@ -646,7 +646,8 @@ Layer.prototype.load = function(src) {
 	httpreq.open("GET", src, false);
 	httpreq.send();
 	var data = httpreq.responseText;
-	var rows = data.split("\r\n");
+	var data = data.replace("\r", "");
+	var rows = data.split("\n");
 	for (var i = 0; i < rows.length; i++) {
 		var cols = rows[i].split(",");
 		this.grid[i] = new Array();
