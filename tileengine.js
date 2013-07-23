@@ -599,11 +599,15 @@ TileMap.prototype.setCollisionMap = function(index) {
 		}
 	}
 	this.collisionMap = grid;
+	if (this.collisionMap == null) {
+		console.log("Cannot generate collision map");
+		return;
+	}
 	this.finder = new PF.AStarFinder({ allowDiagonal: true });
 }
 // Generate path, returns array of nodes to visit
 TileMap.prototype.findPath = function(startX, startY, destX, destY) {
-	if (grid == null) {
+	if (this.collisionMap == null) {
 		return;
 	}
 	var grid = this.collisionMap.clone();
