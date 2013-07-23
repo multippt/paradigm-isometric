@@ -587,6 +587,11 @@ TileMap.prototype.linePick = function(x, y, type) {
 TileMap.prototype.setCollisionMap = function(index) {
 	var layer = this.layers[index];
 	var grid = new PF.Grid(layer.grid.length, layer.grid[0].length);
+	this.collisionMap = grid;
+	if (this.collisionMap == null) {
+		console.log("Cannot generate collision map");
+		return;
+	}
 	
 	for (var i = 0; i < layer.grid.length; i++) {
 		var row = layer.grid[i];
@@ -598,17 +603,13 @@ TileMap.prototype.setCollisionMap = function(index) {
 			}
 		}
 	}
-	this.collisionMap = grid;
-	if (this.collisionMap == null) {
-		console.log("Cannot generate collision map");
-		return;
-	}
+	
 	this.finder = new PF.AStarFinder({ allowDiagonal: true });
 }
 // Generate path, returns array of nodes to visit
 TileMap.prototype.findPath = function(startX, startY, destX, destY) {
 	if (this.collisionMap == null) {
-		return;
+		return new Array();
 	}
 	var grid = this.collisionMap.clone();
 	var path = this.finder.findPath(startX, startY, destX, destY, this.collisionMap);
