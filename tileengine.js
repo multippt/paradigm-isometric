@@ -603,6 +603,9 @@ TileMap.prototype.setCollisionMap = function(index) {
 }
 // Generate path, returns array of nodes to visit
 TileMap.prototype.findPath = function(startX, startY, destX, destY) {
+	if (grid == null) {
+		return;
+	}
 	var grid = this.collisionMap.clone();
 	var path = this.finder.findPath(startX, startY, destX, destY, this.collisionMap);
 	this.collisionMap = grid; // collision map was altered by finder, so replace with original grid to reuse it
