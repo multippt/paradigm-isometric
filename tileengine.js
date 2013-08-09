@@ -12,6 +12,18 @@ function log(str) {
 	debug.innerHTML = str;
 }
 
+// Resize canvas to document size
+var container = document.getElementById("canvascontainer");
+window.onresize = function() {
+	canvasResize();
+};
+function canvasResize() {
+	canvas.width = container.offsetWidth;
+	canvas.height = container.offsetHeight;
+	console.log(container.offsetWidth + "," + container.offsetHeight);
+}
+canvasResize();
+
 // Animation frame
 window.requestAnimFrame = (function() {
 	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -90,8 +102,10 @@ function TileMap() {
 	this.playerVY = 0;
 	this.playerdestX = 1; // player destination
 	this.playerdestY = 12;
-	this.globalX = 340;
-	this.globalY = -600;
+	this.globalX = 0;
+	this.globalY = 0;
+	//this.globalX = 340;
+	//this.globalY = -600;
 	this.mouseX = 0;
 	this.mouseY = 0;
 	this.pick = new Image();
@@ -109,6 +123,17 @@ function TileMap() {
 	this.pathStep = 0;
 	this.key = new Array();
 }
+
+TileMap.prototype.centerCamera = function() {
+	//var playerDraw = this.tileToWorld(this.playerX, this.playerY);
+	var s = this.playerX;
+	var t = this.playerY;
+	var x = 32 * s - 32 * t;
+	var y = 16 * s + 16 * t;
+	this.globalX = canvas.width/2 + -x - 32;
+	this.globalY = canvas.height/2 + -y;
+}
+
 // Draw tile using draw coordinates
 TileMap.prototype.drawTileWorld = function(index, x, y) {
 	for (var i = 0; i < this.tileSets.length; i++) {
@@ -444,8 +469,13 @@ TileMap.prototype.drawLayers = function() {
 }
 // Draw everything
 TileMap.prototype.draw = function() {
+	
+
 	this.performAI();
 	this.performStep();
+	
+	this.centerCamera();
+	
 	ctx.fillStyle="black";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	//console.log(ctx);
@@ -787,6 +817,8 @@ Renderer.prototype.load = function() {
 	canvas.addEventListener("mouseout", this.mouseOut, true); // in case user drag out of canvas
 	canvas.addEventListener("keydown", this.keyDown, true); // tabindex property must be set for canvas to make it focusable
 	canvas.addEventListener("keyup", this.keyUp, true);
+	
+	this.tileMap.centerCamera();
 	
 	this.tileMap.tileSets[0] = new TileSet();
 	this.tileMap.tileSets[0].load("grassland.png", 16, 64, 128, 1024, 1024, 0, 0);
